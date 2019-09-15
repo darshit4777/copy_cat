@@ -9,7 +9,7 @@ class simple_controller:
         self.error = 0.0
         self.position = 0.0
         self.control_scheme = { 'right' : 0.5236 , 'left' : -0.5236 , 'center' : 0.0}
-        self.plate_angular_vel_max = 0.174533 # Unit is rad/s 1 degree = 0.0174533 rad
+        self.plate_angular_vel_max = 24*0.174533 # Unit is rad/s 1 degree = 0.0174533 rad
         self.plate_angular_vel = 0
     
     def get_input(self,input):

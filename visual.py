@@ -69,17 +69,27 @@ class Ball:
         self.ball.set_colorkey((0,0,0),0)
         self.ball_init_x = 804
         self.ball_init_y = 515
+        self.ball_x = 804
+        self.ball_y = 515
+        self.ball_x_px = 804
+        self.ball_y_px = 515
+
         screen.blit(self.ball,(self.ball_init_x,self.ball_init_x))
         pygame.display.update()
 
     def draw_ball(self,x,y):
-        xpos = x
-        ypos = y
-        screen.blit(self.ball,(xpos,ypos))
+        xdelta = x - self.ball_x
+        ydelta = y - self.ball_y
+
+        self.ball_x_px = self.ball_x_px + xdelta/0.002
+        self.ball_y_px = self.ball_y_px + ydelta/0.002
+        screen.blit(self.ball,(self.ball_x_px,self.ball_y_px))
         pygame.display.update()
 
-
-
+    def update(self,x,y):
+        # Physics engine shares ball position x and y
+        self.ball_x = x
+        self.ball_y = y
 
 
 ## Declaring Game Clock
@@ -132,6 +142,10 @@ if __name__=="__main__":
         ball.draw_ball(x = physics_engine.ball_pos_x, y = physics_engine.ball_pos_y)
         ## Update the Controller
         plate_controller.get_observation(physics_engine.plate_angle)
+
+        ## Update the Graphic Variables
+        ball.update(physics_engine.ball_pos_x,physics_engine.ball_pos_y)
+        #print(clock.get_fps())
         clock.tick(30)
 
 
