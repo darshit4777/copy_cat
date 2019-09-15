@@ -6,7 +6,7 @@ import pygame
 import sys
 import time
 from physics import ball_plate_system
-from control import simple_controller
+from control import *
 import numpy as np
 # Member Functions
 
@@ -26,6 +26,8 @@ def rotate_image(image,angle,image_center):
 # Screen Properties
 width=1800
 height=960
+
+# TODO : Add a scale variable to scale the values of the physics engine with the number of pixels
 
 # Background Properties
 ## Color
@@ -81,8 +83,8 @@ class Ball:
         xdelta = x - self.ball_x
         ydelta = y - self.ball_y
 
-        self.ball_x_px = self.ball_x_px + xdelta/0.002
-        self.ball_y_px = self.ball_y_px + ydelta/0.002
+        self.ball_x_px = self.ball_x_px + xdelta/0.00056
+        self.ball_y_px = self.ball_y_px + ydelta/0.00056
         screen.blit(self.ball,(self.ball_x_px,self.ball_y_px))
         pygame.display.update()
 
@@ -108,7 +110,7 @@ if __name__=="__main__":
     physics_engine = ball_plate_system(ball_radius = 0.025,plate_radius = 0.36 , mu = 0.02, ball_init_x = ball.ball_init_x, ball_init_y = ball.ball_init_y)
 
     # Initialsing Plate Controller
-    plate_controller = simple_controller()
+    plate_controller = pid_controller()
 
     
     

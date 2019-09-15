@@ -47,8 +47,11 @@ class ball_plate_system:
         #print(self.plate_angle)
         
         ## Updating Ball Params using Rolling Ball Model
-        self.ball_acc = self.g * np.sin(self.plate_angle)
-        #print(self.ball_acc)
+        if self.ball_vel_x != 0 :
+            self.ball_acc = self.g * np.sin(self.plate_angle) - self.mu * self.g * np.cos(self.plate_angle)
+            #print(self.ball_acc)
+        else :
+            self.ball_acc = self.g * np.sin(self.plate_angle)
 
         self.ball_vel_x = self.ball_vel_x + self.ball_acc * np.cos(self.plate_angle) * self.dt
         
