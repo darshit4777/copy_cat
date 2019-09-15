@@ -4,7 +4,7 @@
 import numpy as np
 import time
 class ball_plate_system:
-    def __init__(self,ball_radius = 0.025, plate_radius = 0.3 , mu = 0.02, ball_init_x = 804, ball_init_y = 515):
+    def __init__(self,ball_radius = 0.025, plate_radius = 0.3 , mu = 0.2, ball_init_x = 804, ball_init_y = 515):
         ## Defining System Dimensions
         self.ball_radius = ball_radius
         self.plate_radius = plate_radius
@@ -48,7 +48,11 @@ class ball_plate_system:
         
         ## Updating Ball Params using Rolling Ball Model
         if self.ball_vel_x != 0 :
-            self.ball_acc = self.g * np.sin(self.plate_angle) - self.mu * self.g * np.cos(self.plate_angle)
+            if self.ball_vel_x > 0 :
+                self.ball_acc = self.g * np.sin(self.plate_angle) - self.mu * self.g * np.cos(self.plate_angle)
+            else :
+                self.ball_acc = self.g * np.sin(self.plate_angle) + self.mu * self.g * np.cos(self.plate_angle)
+
             #print(self.ball_acc)
         else :
             self.ball_acc = self.g * np.sin(self.plate_angle)
@@ -65,5 +69,21 @@ class ball_plate_system:
         #print(self.plate_angle)
         #print(self.plate_angular_vel)
     
-    
+    def restart(self):
+        ## Reset Ball Parameters
+        self.ball_pos_x = self.ball_init_x
+        self.ball_pos_y = self.ball_init_y
+        self.ball_vel_x = 0
+        self.ball_vel_y = 0
+        self.ball_acc = 0
+
+        ## Reset Time parameters
+        self.time_delay = 0
+        self.previous_time = 0
+
+        ## Reset Plate parameters
+        self.plate_angle = 0
+        self.plate_angular_vel = 0
+
+
 

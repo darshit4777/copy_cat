@@ -68,3 +68,14 @@ class pid_controller:
     def get_observation(self,plate_angle):
         self.position = plate_angle
         #print(plate_angle)
+
+    def restart(self):
+        ## Resetting Controller Variables
+        self.target = 0.0
+        self.error = 0.0
+        self.position = 0.0
+        self.error_prev = 0
+        self.error_integ = 0
+
+        ## Resetting Control Input
+        self.plate_angular_vel = 0

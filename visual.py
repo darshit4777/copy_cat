@@ -21,6 +21,14 @@ def rotate_image(image,angle,image_center):
     new_rect = rotated_image.get_rect(center = image_center)
 
     return rotated_image , new_rect
+
+def restart_game(physics,control,plate,ball):
+    physics.restart()
+    control.restart()
+    plate.restart()
+    ball.restart()
+
+
     
 
 # Screen Properties
@@ -63,6 +71,13 @@ class Plate:
 
         # Update Plate Angle
         self.plate_angle = angle
+
+    def restart(self):
+        self.plate_angle = 0
+        self.plate_rect = (245,600)
+        screen.blit(self.plate,self.plate_rect)
+        pygame.display.update()
+
 class Ball:
     def __init__(self):
         ## Loading Ball
@@ -92,12 +107,18 @@ class Ball:
         # Physics engine shares ball position x and y
         self.ball_x = x
         self.ball_y = y
+    
+    def restart(self):
+        self.ball_x = self.ball_init_x
+        self.ball_y = self.ball_init_y
+        self.ball_x_px = self.ball_init_x
+        self.ball_y_px = self.ball_init_y
 
 
 ## Declaring Game Clock
 clock = pygame.time.Clock()
-    
-simulation_terminate = False        
+simulation_terminate = False
+       
 
 if __name__=="__main__":
     # Loading the Plate
@@ -111,6 +132,7 @@ if __name__=="__main__":
 
     # Initialsing Plate Controller
     plate_controller = pid_controller()
+    
 
     
     
@@ -148,6 +170,10 @@ if __name__=="__main__":
         ## Update the Graphic Variables
         ball.update(physics_engine.ball_pos_x,physics_engine.ball_pos_y)
         #print(clock.get_fps())
+
+        if (ball.ball_x_px < 200 or ball.ball_x_px > 1590 ):
+            restart_game(physics_engine,plate_controller,plate,ball)
+
         clock.tick(30)
 
 
