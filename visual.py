@@ -7,6 +7,7 @@ import sys
 import time
 from physics import ball_plate_system
 from control import simple_controller
+import numpy as np
 # Member Functions
 
 def draw_background(screen,background_color):
@@ -48,7 +49,11 @@ class Plate:
     
     def draw_plate(self,screen,angle):
         # Rotate the plate and generate a new image.
-        plate_new , plate_new_rect = rotate_image(self.plate,angle,self.plate_center)
+        # Physics Engine and Control maintain angles in SI system. Visual uses angle in degrees.
+        angle = np.rad2deg(angle)
+        #print(angle)
+        plate_new , plate_new_rect = rotate_image(self.plate,-angle,self.plate_center) # Negative angle argument to ensure same coordinate system for ball and plate.
+        
 
         # Blit the new image 
         screen.blit(plate_new,plate_new_rect)
@@ -62,11 +67,15 @@ class Ball:
         self.ball = pygame.image.load('Ball.png').convert()
         self.ball = pygame.transform.scale(self.ball,(90,90))
         self.ball.set_colorkey((0,0,0),0)
-        screen.blit(self.ball,(804,515))
+        self.ball_init_x = 804
+        self.ball_init_y = 515
+        screen.blit(self.ball,(self.ball_init_x,self.ball_init_x))
         pygame.display.update()
 
-    def draw_ball(self):
-        screen.blit(self.ball,(804,515))
+    def draw_ball(self,x,y):
+        xpos = x - 45
+        ypos = y - 45
+        screen.blit(self.ball,(xpos,ypos))
         pygame.display.update()
 
 
@@ -86,7 +95,7 @@ if __name__=="__main__":
     ball = Ball()
 
     # Initialising Physics Engine
-    physics_engine = ball_plate_system(ball_radius = 0.025,plate_radius = 0.36 , mu = 0.02)
+    physics_engine = ball_plate_system(ball_radius = 0.025,plate_radius = 0.36 , mu = 0.02, ball_init_x = ball.ball_init_x, ball_init_y = ball.ball_init_y)
 
     # Initialsing Plate Controller
     plate_controller = simple_controller()
@@ -120,7 +129,7 @@ if __name__=="__main__":
         ## Render the graphics
         draw_background(screen,background_color)
         plate.draw_plate(screen=screen,angle=physics_engine.plate_angle)
-        ball.draw_ball()
+        ball.draw_ball(x = physics_engine.ball_pos_x, y = physics_engine.ball_pos_y)
         ## Update the Controller
         plate_controller.get_observation(physics_engine.plate_angle)
         clock.tick(30)
