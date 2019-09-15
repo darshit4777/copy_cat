@@ -73,8 +73,8 @@ class Ball:
         pygame.display.update()
 
     def draw_ball(self,x,y):
-        xpos = x - 45
-        ypos = y - 45
+        xpos = x
+        ypos = y
         screen.blit(self.ball,(xpos,ypos))
         pygame.display.update()
 

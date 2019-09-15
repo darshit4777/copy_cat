@@ -28,7 +28,7 @@ class ball_plate_system:
         ## Defining Physical Constants
         self.mu = mu   ## Ball - Plate rolling friction
         self.g = 9.81   ## Acceleration due to gravity 
-        self.dt = 1/30
+        self.dt = 1/15
 
     def get_input(self,thetadot):
         self.plate_angular_vel = thetadot
@@ -41,13 +41,15 @@ class ball_plate_system:
         
         ## Updating Ball Params using Rolling Ball Model
         self.ball_acc = self.g * np.sin(self.plate_angle)
+        #print(self.ball_acc)
 
-        self.ball_vel_x = self.ball_acc * np.cos(self.plate_angle) * self.dt
+        self.ball_vel_x = self.ball_vel_x + self.ball_acc * np.cos(self.plate_angle) * self.dt
+        
         self.ball_pos_x = self.ball_pos_x + self.ball_vel_x * self.dt
+        #print(self.ball_pos_x)
 
         ## Adjusting Ball Position Y so that it is always on the plate 
-        c = self.ball_init_y - self.plate_radius * np.sin(self.plate_angle)
-        self.ball_pos_y = np.tan(self.plate_angle) * self.ball_pos_x + c
+        self.ball_pos_y = self.ball_init_y + np.tan(self.plate_angle) * ( self.ball_pos_x - self.ball_init_x)
 
         #print(self.plate_angle)
         #print(self.plate_angular_vel)
