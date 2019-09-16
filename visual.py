@@ -8,6 +8,7 @@ import time
 from physics import ball_plate_system
 from control import *
 import numpy as np
+from sharinGan import *
 # Member Functions
 
 def draw_background(screen,background_color):
@@ -23,6 +24,7 @@ def rotate_image(image,angle,image_center):
     return rotated_image , new_rect
 
 def restart_game(physics,control,plate,ball):
+    # Restart each module 
     physics.restart()
     control.restart()
     plate.restart()
@@ -61,7 +63,6 @@ class Plate:
         # Rotate the plate and generate a new image.
         # Physics Engine and Control maintain angles in SI system. Visual uses angle in degrees.
         angle = np.rad2deg(angle)
-        #print(angle)
         plate_new , plate_new_rect = rotate_image(self.plate,-angle,self.plate_center) # Negative angle argument to ensure same coordinate system for ball and plate.
         
 
@@ -133,6 +134,9 @@ if __name__=="__main__":
     # Initialsing Plate Controller
     plate_controller = pid_controller()
     
+    # Declaring a Global Variable - I know. I must die in shame.
+
+    simulation_record = False
 
     
     
@@ -144,13 +148,24 @@ if __name__=="__main__":
                 sys.exit()
             if (event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT):
                 plate_controller.get_input('left')
-                
-
+                if simulation_record == True :
+                    copy_cat.writeData(physics_engine.ball_pos_x,physics_engine.ball_vel_x,physics_engine.plate_angle,-1)
+        
             if (event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT):
                 plate_controller.get_input('right')
 
+                if simulation_record == True :
+                    copy_cat.writeData(physics_engine.ball_pos_x,physics_engine.ball_vel_x,physics_engine.plate_angle,1)
+
             if (event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN):
                 plate_controller.get_input('center')
+
+                if simulation_record == True :
+                    copy_cat.writeData(physics_engine.ball_pos_x,physics_engine.ball_vel_x,physics_engine.plate_angle,0)
+
+            if (event.type == pygame.KEYDOWN and event.key == pygame.K_s):
+                copy_cat = DataLogger()
+                simulation_record = True
             
         ## Query the controller for the angular velocity
         plate_angular_vel = plate_controller.control_loop()
@@ -171,7 +186,7 @@ if __name__=="__main__":
         ball.update(physics_engine.ball_pos_x,physics_engine.ball_pos_y)
         #print(clock.get_fps())
 
-        if (ball.ball_x_px < 200 or ball.ball_x_px > 1590 ):
+        if (ball.ball_x_px < 200 or ball.ball_x_px > 1545 ):
             restart_game(physics_engine,plate_controller,plate,ball)
 
         clock.tick(30)

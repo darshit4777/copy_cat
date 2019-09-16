@@ -62,7 +62,7 @@ class pid_controller:
 
         self.error_integ = self.error * self.dt + self.error_integ
         self.error_prev = self.error
-        print(self.plate_angular_vel)
+        #print(self.plate_angular_vel)
         return self.plate_angular_vel
 
     def get_observation(self,plate_angle):
