@@ -36,6 +36,7 @@ class DataAnalyser :
     def __init__(self):
         self.data_path = r'/home/darshit/project_propeller/src/copy_cat/'
         self.data_frame = None
+        self.sharin_gan = None
 
     def genDataFrame(self):
         data_files = glob.glob(self.data_path + "datalog-*.csv")
@@ -57,21 +58,25 @@ class DataAnalyser :
         self.data_frame['position'] = self.data_frame['position'] - 804
         
     def copyCatJutsu(self):
-        multiLinearModel = linear_model.LinearRegression()
+        print("Studing Moves")
+        self.sharin_gan = linear_model.LinearRegression()
         Y = self.data_frame['input']
         X = self.data_frame[['position','angle','velocity']]
 
-        multiLinearModel.fit(X,Y)
+        self.sharin_gan.fit(X,Y)
+        print("Analysis Complete")
+        
+        """
         new_position = 0.10
         new_angle = 0.15
         new_velocity = 0.1
-        new_input = multiLinearModel.predict([[new_position,new_angle,new_velocity]])
+        new_input = self.sharin_gan.predict([[new_position,new_angle,new_velocity]])
         print(new_input)
-
+        """
 
         
 if __name__=="__main__":
-    SharinGan = DataLogger()
+    SharinGan = DataAnalyser()
     #SharinGan.writeData(1,1,20,1)
     #SharinGan.writeData(1,2,20,-1)
     SharinGan.genDataFrame()

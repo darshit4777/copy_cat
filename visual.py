@@ -8,7 +8,7 @@ import time
 from physics import ball_plate_system
 from control import *
 import numpy as np
-from sharinGan import *
+from sharinGan import DataLogger
 # Member Functions
 
 def draw_background(screen,background_color):
@@ -133,10 +133,13 @@ if __name__=="__main__":
 
     # Initialsing Plate Controller
     plate_controller = pid_controller()
+    machine_control = ml_controller()
+    #plate_controller = simple_controller()
     
     # Declaring a Global Variable - I know. I must die in shame.
 
     simulation_record = False
+    machine_play = False
 
     
     
@@ -147,25 +150,34 @@ if __name__=="__main__":
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key==pygame.K_ESCAPE):
                 sys.exit()
             if (event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT):
-                plate_controller.get_input('left')
-                if simulation_record == True :
-                    copy_cat.writeData(physics_engine.ball_pos_x,physics_engine.ball_vel_x,physics_engine.plate_angle,-1)
+                if machine_play == False:
+                    plate_controller.get_input('left')
+                    if simulation_record == True :
+                        copy_cat.writeData(physics_engine.ball_pos_x,physics_engine.ball_vel_x,physics_engine.plate_angle,-1)
         
             if (event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT):
-                plate_controller.get_input('right')
-
-                if simulation_record == True :
-                    copy_cat.writeData(physics_engine.ball_pos_x,physics_engine.ball_vel_x,physics_engine.plate_angle,1)
+                if machine_play == False:
+                    plate_controller.get_input('right')
+                    if simulation_record == True :
+                        copy_cat.writeData(physics_engine.ball_pos_x,physics_engine.ball_vel_x,physics_engine.plate_angle,1)
 
             if (event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN):
-                plate_controller.get_input('center')
-
-                if simulation_record == True :
-                    copy_cat.writeData(physics_engine.ball_pos_x,physics_engine.ball_vel_x,physics_engine.plate_angle,0)
+                if machine_play == False:
+                    plate_controller.get_input('center')
+                    if simulation_record == True :
+                        copy_cat.writeData(physics_engine.ball_pos_x,physics_engine.ball_vel_x,physics_engine.plate_angle,0)
 
             if (event.type == pygame.KEYDOWN and event.key == pygame.K_s):
                 copy_cat = DataLogger()
+                copy_cat.initDataLogger()
                 simulation_record = True
+            
+            if (event.type == pygame.KEYDOWN and event.key == pygame.K_m):
+                machine_play = True
+
+        if machine_play == True:
+            machine_control.gen_input(physics_engine.ball_pos_x,physics_engine.plate_angle,physics_engine.ball_vel_x)
+            plate_controller.set_target(machine_control.control_input)    
             
         ## Query the controller for the angular velocity
         plate_angular_vel = plate_controller.control_loop()

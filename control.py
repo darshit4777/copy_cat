@@ -1,5 +1,6 @@
 ## This program will serve as the Controller. It will be called during every event to handle changes in the system
 import numpy as np
+from sharinGan import DataAnalyser
 
 class simple_controller:
     ## This controller functions as a Bang-Bang or Binary Controller
@@ -8,7 +9,7 @@ class simple_controller:
         self.target = 0.0
         self.error = 0.0
         self.position = 0.0
-        self.control_scheme = { 'right' : 0.5236 , 'left' : -0.5236 , 'center' : 0.0}
+        self.control_scheme = { 'right' : 0.1309 , 'left' : -0.1309 , 'center' : 0.0}
         self.plate_angular_vel_max = 10*0.174533 # Unit is rad/s 1 degree = 0.0174533 rad
         self.plate_angular_vel = 0
     
@@ -57,6 +58,9 @@ class pid_controller:
     def get_input(self,input):
         self.target = self.control_scheme.get(input)
 
+    def set_target(self,input_value):
+        self.target = input_value
+
 
     def control_loop(self):
         self.error = self.target - self.position
@@ -88,3 +92,44 @@ class pid_controller:
 
         ## Resetting Control Input
         self.plate_angular_vel = 0
+
+class ml_controller:
+    
+    def __init__(self):
+        # The ML controller will use available data to generate a model and then it will supply inputs to a PID object
+        self.data_analyser = DataAnalyser()
+        
+        # Generate a dataframe from available data 
+        self.data_analyser.genDataFrame()
+
+        # Normalise dataframe
+        self.data_analyser.normDataFrame()
+
+        # Generate Model
+        self.data_analyser.copyCatJutsu()
+
+        # Model Variables
+        self.plate_angle = 0
+        self.position = 804
+        self.velocity = 0
+
+        # Input to Controller
+        self.control_input = 0
+
+
+    def gen_input(self,position,angle,velocity):
+        self.position = position - 804
+        #print(self.position)
+        self.velocity = velocity
+        self.plate_angle = angle
+        input_value = self.data_analyser.sharin_gan.predict([[self.position,self.plate_angle,self.velocity]])
+        print(input_value[0])
+
+        # Setting the input value into the range
+        self.control_input = input_value[0] * 0.1309
+
+
+
+
+
+
