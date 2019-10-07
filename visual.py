@@ -165,7 +165,7 @@ if __name__=="__main__":
                 if machine_play == False:
                     plate_controller.get_input('center')
                     if simulation_record == True :
-                        copy_cat.writeData(physics_engine.ball_pos_x,physics_engine.ball_vel_x,physics_engine.plate_angle,0)
+                        copy_cat.writeData(physics_engine.ball_pos_x,physics_engine.ball_vel_x,physics_engine.ball_acc,0)
 
             if (event.type == pygame.KEYDOWN and event.key == pygame.K_s):
                 copy_cat = DataLogger()

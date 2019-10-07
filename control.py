@@ -1,6 +1,7 @@
 ## This program will serve as the Controller. It will be called during every event to handle changes in the system
 import numpy as np
 from sharinGan import DataAnalyser
+import time
 
 class simple_controller:
     ## This controller functions as a Bang-Bang or Binary Controller
@@ -54,6 +55,7 @@ class pid_controller:
         self.I = 0.1
         self.error_integ = 0
         self.dt = 1/30
+        
 
     def get_input(self,input):
         self.target = self.control_scheme.get(input)
@@ -102,11 +104,13 @@ class ml_controller:
         # Generate a dataframe from available data 
         self.data_analyser.genDataFrame()
 
-        # Normalise dataframe
-        self.data_analyser.normDataFrame()
+        
+        if self.data_analyser.data_available is True:
+            # Normalise dataframe
+            self.data_analyser.normDataFrame()
 
-        # Generate Model
-        self.data_analyser.copyCatJutsu()
+            # Generate Model
+            self.data_analyser.copyCatJutsu()
 
         # Model Variables
         self.plate_angle = 0
@@ -116,6 +120,9 @@ class ml_controller:
         # Input to Controller
         self.control_input = 0
 
+        # Controller time constraints
+        self.control_time = 0
+        self.control_time_interval = 0.5
 
     def gen_input(self,position,angle,velocity):
         self.position = position - 804
@@ -126,7 +133,11 @@ class ml_controller:
         print(input_value[0])
 
         # Setting the input value into the range
-        self.control_input = input_value[0] * 0.1309
+        current_time = time.time()
+        if ((current_time - self.control_time) > self.control_time_interval): 
+            self.control_input = input_value[0] * 0.1309 / np.abs(input_value[0])
+            #self.control_time = input_value[0] * 0.1309
+            self.control_time = time.time()
 
 
 
