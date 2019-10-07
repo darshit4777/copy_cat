@@ -35,14 +35,14 @@ class DataLogger :
 
 class DataAnalyser :
     def __init__(self):
-        self.data_path = r'/home/darshit/project_propeller/src/copy_cat/'
+        #self.data_path = r'/home/darshit/project_propeller/src/copy_cat/'
         self.data_frame = None
         self.sharin_gan = None
         self.data_available = False
 
     def genDataFrame(self):
 
-        data_files = glob.glob(self.data_path + "datalog-*.csv")
+        data_files = glob.glob("datalog-*.csv")
         #print(self.data_path)
         df = []
         print("Reading Data Files")
