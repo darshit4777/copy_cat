@@ -122,22 +122,26 @@ class ml_controller:
 
         # Controller time constraints
         self.control_time = 0
-        self.control_time_interval = 0.5
+        self.control_time_interval = 0.0
 
     def gen_input(self,position,angle,velocity):
         self.position = position - 804
         #print(self.position)
         self.velocity = velocity
         self.plate_angle = angle
-        input_value = self.data_analyser.sharin_gan.predict([[self.position,self.plate_angle,self.velocity]])
-        print(input_value[0])
+        Y = self.data_analyser.sharin_gan.predict([[self.position,self.plate_angle,self.velocity]])[0]
+        #print(Y)
+        input_value = Y[0]
+        time_interval = Y[1]
+        #print(input_value[0])
 
         # Setting the input value into the range
         current_time = time.time()
         if ((current_time - self.control_time) > self.control_time_interval): 
-            self.control_input = input_value[0] * 0.1309 / np.abs(input_value[0])
+            self.control_input = input_value * 0.1309 / np.abs(input_value)
             #self.control_time = input_value[0] * 0.1309
             self.control_time = time.time()
+            self.control_time_interval = time_interval
 
 
 

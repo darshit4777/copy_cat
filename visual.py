@@ -31,6 +31,18 @@ def restart_game(physics,control,plate,ball):
     ball.restart()
 
 
+# TODO : Use a dictionary for position, velocity and acceleration.
+def check_terminal_condition(position,velocity,acceleration):
+    ## Checking Ball Pixel Position
+    if ( (position < 654) or (position > 954)) : 
+        if (np.abs(velocity) < 0.1) :
+            if (np.abs(acceleration) < 0.1):
+                restart_game()
+
+
+
+
+
     
 
 # Screen Properties

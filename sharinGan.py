@@ -7,14 +7,17 @@ import pandas as pd
 from  datetime import datetime
 import glob
 from sklearn import linear_model
+import time
 
 class DataLogger :
     def __init__(self):
         # The name of the data collection file will be set according to the time during which a data logging session is called
-        self.filename = "datalog-" + str(datetime.now()) +".csv"
-        self.fieldnames = ['position','velocity','acceleration','input']
+        self.filename = "train_data/datalog-" + str(datetime.now()) +".csv"
+        self.fieldnames = ['position','velocity','acceleration','input','time_interval']
         self.csvfile = None
         self.writer = None
+        self.input_time = None
+        self.input_time_previous = 0
         
     
     def initDataLogger(self):
@@ -27,10 +30,14 @@ class DataLogger :
         
     def writeData(self,position,velocity,acceleration,game_input):
         # Not sure if this is right, But I guess the file handle has to be assigned once again
+        self.input_time = time.clock()
+        time_interval = self.input_time - self.input_time_previous
 
         with open (self.filename,'a',newline='') as self.csvfile:
             self.writer = csv.DictWriter(self.csvfile,fieldnames = self.fieldnames)
-            self.writer.writerow({'position':position,'velocity':velocity,'acceleration':acceleration,'input':game_input})
+            self.writer.writerow({'position':position,'velocity':velocity,'acceleration':acceleration,'input':game_input,'time_interval':time_interval})
+        
+        self.input_time_previous = self.input_time
 
 
 class DataAnalyser :
@@ -42,7 +49,7 @@ class DataAnalyser :
 
     def genDataFrame(self):
 
-        data_files = glob.glob("datalog-*.csv")
+        data_files = glob.glob("train_data/datalog-*.csv")
         #print(self.data_path)
         df = []
         print("Reading Data Files")
@@ -68,7 +75,7 @@ class DataAnalyser :
     def copyCatJutsu(self):
         print("Studying Moves")
         self.sharin_gan = linear_model.LinearRegression()
-        Y = self.data_frame['input']
+        Y = self.data_frame[['input','time_interval']]
         X = self.data_frame[['position','acceleration','velocity']]
 
         self.sharin_gan.fit(X,Y)
