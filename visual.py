@@ -28,7 +28,7 @@ def rotate_image(image,angle,image_center):
 
 
 class Terminator:
-    def __init__(self, physics,control,plate,ball):
+    def __init__(self, physics,control,plate,ball,score):
         self.terminal_condition = False
         self.terminal_condition_timer_active = False
         self.terminal_condition_timestamp = 0
@@ -36,11 +36,13 @@ class Terminator:
         self.control = control
         self.plate = plate
         self.ball = ball
+        self.scoreboard = score
         self.ball_size = 0.0504
         self.ball_center_position_limit_left = - self.ball_size # These limits are expressed in metric
         self.ball_center_position_limit_right =  self.ball_size
         self.ball_limit_position_right = 0.6764 / 2
         self.ball_limit_position_left = -0.6764 / 2
+        
         
     
 
@@ -74,6 +76,7 @@ class Terminator:
                 self.terminal_condition_timer_active = False
                 self.terminal_condition_timestamp = None
                 self.terminal_condition = False
+                self.scoreboard.increase_score()
                 self.restart_game()
                 return
             else :
@@ -185,6 +188,28 @@ class Ball:
     def restart(self,ball_pos_x = 0,ball_pos_y = 0):
         self.draw_ball(ball_pos_x,ball_pos_y)
 
+class Score:
+    def __init__(self):
+        self.score = 0
+        self.font = pygame.font.SysFont("Arial", 30)
+        self.scoretext = self.font.render("Score " + str(self.score),1,(255,255,255))
+        screen.blit(self.scoretext,(0,0))
+        return
+
+    def update_score(self):
+        self.scoretext = self.font.render("Score " + str(self.score),1,(255,255,255))
+        screen.blit(self.scoretext,(0,0))
+        return
+
+    def decrease_score(self):
+        self.score = self.score - 1
+        self.score = np.max(0,self.score)
+        self.update_score()
+        return
+    def increase_score(self):
+        self.score = self.score + 1
+        self.update_score()
+
 
 ## Declaring Game Clock
 clock = pygame.time.Clock()
@@ -206,8 +231,11 @@ if __name__=="__main__":
     machine_control = ml_controller()
     #plate_controller = simple_controller()
 
+    # Initialising ScoreBoard
+    scoreboard = Score()
+
     # Initialising the Terminal Condition Handler
-    terminator = Terminator(physics_engine,plate_controller,plate,ball)
+    terminator = Terminator(physics_engine,plate_controller,plate,ball,scoreboard)
 
     
     # Declaring a Global Variable - I know. I must die in shame.
@@ -223,6 +251,7 @@ if __name__=="__main__":
         if ((physics_engine.ball_pos_x < terminator.ball_limit_position_left) or (physics_engine.ball_pos_x > terminator.ball_limit_position_right)):
             terminator.terminal_condition_timer_active = False
             terminal_condition_timestamp = None
+            scoreboard.decrease_score()
             terminator.restart_game()
 
         terminator.check_terminal_condition(physics_engine.ball_pos_x)
@@ -273,6 +302,7 @@ if __name__=="__main__":
         
         ## Render the graphics
         draw_background(screen,background_color)
+        scoreboard.update_score()
         plate.draw_plate(screen=screen,angle=physics_engine.plate_angle)
         ball.draw_ball(x = physics_engine.ball_pos_x, y = physics_engine.ball_pos_y)
         ## Update the Controller

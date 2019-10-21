@@ -10,12 +10,20 @@ The copy cat simulator was built for testing various control algorithms to solve
 Just clone the repository and download dependencies from the requirements.txt. To do so, just use `pip install -r requirements.txt`
 
 ## Usage
-
+### Launching
 Start the game using `python3 visual.py` </br>
-Use the arrow keys to tilt the plate, the game will restart if the ball falls off. 
+
+### Controls
+Use the arrow keys to tilt the plate. As the plate tilts the ball will start rolling down the incline. Be careful! The ball speeds up quite fast!. </br> 
+
+### Scoring
+The aim is to center the ball on the plate and hold it for 2 seconds. If you do so, the game restarts with a randomised ball location and you gain a point. The game will restart if the ball falls off and you lose a point.
 </br>
-Press the `s` key to enter into the data collection mode aka 'SharinGan' mode. This will start tracking all your moves to analyse.</br>
-Press the `m` key to analyse all your moves and let machine learning do the controlling.</br>
-</br>
-</br>
-Enjoy !
+
+### Data collection for training algorithms
+Press the `s` key to enter into the data collection mode aka 'SharinGan' mode. This will start tracking all your moves to CSV file. This gets stored in the `train_data` directory.</br>
+
+### Machine Learning
+Press the `m` key to analyse all your moves and let machine learning do the controlling. When a new game session is started, the program checks for any collected data. If any data is found it trains a Multi-Linear Regression model on the given data. On pressing the `m` key, the machine learning trained controller starts playing with the ball. The model will behave on the basis of the inputs given to it. In that it will try to emulate the user's playing style.</br>
+
+## Enjoy !
