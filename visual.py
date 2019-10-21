@@ -93,7 +93,7 @@ class Terminator:
         ball_side = np.random.randint(0,2)
         ball_pos_x = np.random.uniform(self.ball_center_position_limit_right,self.ball_limit_position_right - self.ball_size)
         plate_angle_radians = np.random.uniform(0.0900,0.1209)
-        print(plate_angle_radians)
+        #print(plate_angle_radians)
 
         if ball_side == 0 :
             # Ball appears on the left side 
@@ -218,7 +218,7 @@ if __name__=="__main__":
     
     
     while simulation_terminate is not True:
-        print(physics_engine.ball_pos_x)
+        #print(physics_engine.ball_pos_x)
         
         if ((physics_engine.ball_pos_x < terminator.ball_limit_position_left) or (physics_engine.ball_pos_x > terminator.ball_limit_position_right)):
             terminator.terminal_condition_timer_active = False
@@ -237,13 +237,13 @@ if __name__=="__main__":
                 if machine_play == False:
                     plate_controller.get_input('left')
                     if simulation_record == True :
-                        copy_cat.writeData(physics_engine.ball_pos_x,physics_engine.ball_vel_x,physics_engine.plate_angle,-1)
+                        copy_cat.writeData(physics_engine.ball_pos_x,physics_engine.ball_vel_x,physics_engine.plate_angle,1)
         
             if (event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT):
                 if machine_play == False:
                     plate_controller.get_input('right')
                     if simulation_record == True :
-                        copy_cat.writeData(physics_engine.ball_pos_x,physics_engine.ball_vel_x,physics_engine.plate_angle,1)
+                        copy_cat.writeData(physics_engine.ball_pos_x,physics_engine.ball_vel_x,physics_engine.plate_angle,-1)
 
             if (event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN):
                 if machine_play == False:
