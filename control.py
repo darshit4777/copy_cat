@@ -46,7 +46,7 @@ class pid_controller:
         self.target = 0.0
         self.error = 0.0
         self.position = 0.0
-        self.control_scheme = { 'right' : 0.1309 , 'left' : -0.1309 , 'center' : 0.0}
+        self.control_scheme = { 'right' : -0.1309 , 'left' : 0.1309 , 'center' : 0.0}
         self.plate_angular_vel_max = 20*0.174533 # Unit is rad/s 1 degree = 0.0174533 rad
         self.plate_angular_vel = 0
         self.error_prev = 0

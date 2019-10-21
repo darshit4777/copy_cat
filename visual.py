@@ -9,6 +9,7 @@ from physics import ball_plate_system
 from control import *
 import numpy as np
 from sharinGan import DataLogger
+from os import system
 # Member Functions
 
 def draw_background(screen,background_color):
@@ -23,28 +24,99 @@ def rotate_image(image,angle,image_center):
 
     return rotated_image , new_rect
 
-def restart_game(physics,control,plate,ball):
-    # Restart each module 
-    physics.restart()
-    control.restart()
-    plate.restart()
-    ball.restart()
-
-
 # TODO : Use a dictionary for position, velocity and acceleration.
-def check_terminal_condition(position,velocity,acceleration):
-    ## Checking Ball Pixel Position
-    if ( (position < 654) or (position > 954)) : 
-        if (np.abs(velocity) < 0.1) :
-            if (np.abs(acceleration) < 0.1):
-                restart_game()
 
 
-
-
-
+class Terminator:
+    def __init__(self, physics,control,plate,ball):
+        self.terminal_condition = False
+        self.terminal_condition_timer_active = False
+        self.terminal_condition_timestamp = 0
+        self.physics = physics
+        self.control = control
+        self.plate = plate
+        self.ball = ball
+        self.ball_size = 0.0504
+        self.ball_center_position_limit_left = - self.ball_size # These limits are expressed in metric
+        self.ball_center_position_limit_right =  self.ball_size
+        self.ball_limit_position_right = 0.6764 / 2
+        self.ball_limit_position_left = -0.6764 / 2
+        
     
 
+    def check_terminal_condition(self,position):
+    
+        if (self.ball_center_position_limit_left < position < self.ball_center_position_limit_right): 
+            self.terminal_condition = True
+            if self.terminal_condition_timer_active:
+                
+                return
+            else :
+                self.terminal_condition_timestamp = time.time()
+                self.terminal_condition_timer_active = True
+                
+                return
+        else :
+            if self.terminal_condition_timer_active :
+                self.terminal_condition_timestamp = None
+                self.terminal_condition_timer_active = False
+                
+                return
+            else :
+                
+                return
+
+    
+    def check_timer(self):
+        if self.terminal_condition_timer_active :
+            time_now = time.time()
+            if (time_now - self.terminal_condition_timestamp) > 2.0 :
+                self.terminal_condition_timer_active = False
+                self.terminal_condition_timestamp = None
+                self.terminal_condition = False
+                self.restart_game()
+                return
+            else :
+                return
+        else :
+            return
+
+    def restart_game(self):
+        ''' This function will restart the game with the Ball at a random location and the Plate at a random angle.
+        The random angle of the plate however is always self stabilizing '''
+
+        # Restart the control module 
+        self.control.restart()
+        
+        # Selecting Random Values
+        ## Selecting the side where the ball will reappear
+        ball_side = np.random.randint(0,2)
+        ball_pos_x = np.random.uniform(self.ball_center_position_limit_right,self.ball_limit_position_right - self.ball_size)
+        plate_angle_radians = np.random.uniform(0.0900,0.1209)
+        print(plate_angle_radians)
+
+        if ball_side == 0 :
+            # Ball appears on the left side 
+            ball_pos_x = -ball_pos_x
+            plate_angle_radians = -plate_angle_radians
+
+        if ball_side == 1:
+            # Ball appears on the right side
+            ball_pos_x = ball_pos_x
+            plate_angle_radians = plate_angle_radians
+            
+        # Restarting the Physics module and the Plate Graphics module
+        self.physics.restart(ball_pos_x,plate_angle_radians)
+        self.plate.restart(plate_angle_radians)
+
+        # After the Physics module x and y values are calculated. We can update the Graphics Engine with the values of the physics engine
+        ball_pos_x = self.physics.ball_pos_x
+        ball_pos_y = self.physics.ball_pos_y
+        self.ball.restart(ball_pos_x,ball_pos_y)
+        return
+        
+
+    
 # Screen Properties
 width=1800
 height=960
@@ -75,7 +147,7 @@ class Plate:
         # Rotate the plate and generate a new image.
         # Physics Engine and Control maintain angles in SI system. Visual uses angle in degrees.
         angle = np.rad2deg(angle)
-        plate_new , plate_new_rect = rotate_image(self.plate,-angle,self.plate_center) # Negative angle argument to ensure same coordinate system for ball and plate.
+        plate_new , plate_new_rect = rotate_image(self.plate,angle,self.plate_center) # Negative angle argument to ensure same coordinate system for ball and plate.
         
 
         # Blit the new image 
@@ -85,11 +157,9 @@ class Plate:
         # Update Plate Angle
         self.plate_angle = angle
 
-    def restart(self):
-        self.plate_angle = 0
-        self.plate_rect = (245,600)
-        screen.blit(self.plate,self.plate_rect)
-        pygame.display.update()
+    def restart(self,plate_angle = 0):
+        self.draw_plate(screen = screen, angle = plate_angle)
+        
 
 class Ball:
     def __init__(self):
@@ -97,35 +167,23 @@ class Ball:
         self.ball = pygame.image.load('Ball.png').convert()
         self.ball = pygame.transform.scale(self.ball,(90,90))
         self.ball.set_colorkey((0,0,0),0)
-        self.ball_init_x = 804
-        self.ball_init_y = 515
-        self.ball_x = 804
-        self.ball_y = 515
-        self.ball_x_px = 804
-        self.ball_y_px = 515
+        self.ball_x_px_init = 804
+        self.ball_y_px_init = 515
+        self.scale = 1786 # 1786 px corresponds to 1 m
 
-        screen.blit(self.ball,(self.ball_init_x,self.ball_init_x))
+        screen.blit(self.ball,(self.ball_x_px_init,self.ball_y_px_init))
         pygame.display.update()
 
     def draw_ball(self,x,y):
-        xdelta = x - self.ball_x
-        ydelta = y - self.ball_y
+        
+        self.ball_x_px = self.scale * x + self.ball_x_px_init 
+        self.ball_y_px = -self.scale * y + self.ball_y_px_init
 
-        self.ball_x_px = self.ball_x_px + xdelta/0.00056
-        self.ball_y_px = self.ball_y_px + ydelta/0.00056
         screen.blit(self.ball,(self.ball_x_px,self.ball_y_px))
         pygame.display.update()
-
-    def update(self,x,y):
-        # Physics engine shares ball position x and y
-        self.ball_x = x
-        self.ball_y = y
     
-    def restart(self):
-        self.ball_x = self.ball_init_x
-        self.ball_y = self.ball_init_y
-        self.ball_x_px = self.ball_init_x
-        self.ball_y_px = self.ball_init_y
+    def restart(self,ball_pos_x = 0,ball_pos_y = 0):
+        self.draw_ball(ball_pos_x,ball_pos_y)
 
 
 ## Declaring Game Clock
@@ -141,12 +199,16 @@ if __name__=="__main__":
     ball = Ball()
 
     # Initialising Physics Engine
-    physics_engine = ball_plate_system(ball_radius = 0.025,plate_radius = 0.36 , mu = 0.02, ball_init_x = ball.ball_init_x, ball_init_y = ball.ball_init_y)
+    physics_engine = ball_plate_system(ball_radius = 0.025,plate_radius = 0.36 , mu = 0.02, ball_init_x = 0, ball_init_y = 0)
 
     # Initialsing Plate Controller
     plate_controller = pid_controller()
     machine_control = ml_controller()
     #plate_controller = simple_controller()
+
+    # Initialising the Terminal Condition Handler
+    terminator = Terminator(physics_engine,plate_controller,plate,ball)
+
     
     # Declaring a Global Variable - I know. I must die in shame.
 
@@ -156,6 +218,16 @@ if __name__=="__main__":
     
     
     while simulation_terminate is not True:
+        print(physics_engine.ball_pos_x)
+        
+        if ((physics_engine.ball_pos_x < terminator.ball_limit_position_left) or (physics_engine.ball_pos_x > terminator.ball_limit_position_right)):
+            terminator.terminal_condition_timer_active = False
+            terminal_condition_timestamp = None
+            terminator.restart_game()
+
+        terminator.check_terminal_condition(physics_engine.ball_pos_x)
+        terminator.check_timer()
+
         for event in pygame.event.get():
             
             ## Event Handling Conditions
@@ -206,13 +278,7 @@ if __name__=="__main__":
         ## Update the Controller
         plate_controller.get_observation(physics_engine.plate_angle)
 
-        ## Update the Graphic Variables
-        ball.update(physics_engine.ball_pos_x,physics_engine.ball_pos_y)
-        #print(clock.get_fps())
-
-        if (ball.ball_x_px < 200 or ball.ball_x_px > 1545 ):
-            restart_game(physics_engine,plate_controller,plate,ball)
-
+        ## Set Frame Rate        
         clock.tick(30)
 
 
