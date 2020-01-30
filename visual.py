@@ -229,6 +229,7 @@ if __name__=="__main__":
     # Initialsing Plate Controller
     plate_controller = pid_controller()
     machine_control = ml_controller()
+    pid_ball_controller = pid_ball_controller()
     #plate_controller = simple_controller()
 
     # Initialising ScoreBoard
@@ -242,6 +243,7 @@ if __name__=="__main__":
 
     simulation_record = False
     machine_play = False
+    pid_control = False
 
     
     
@@ -287,10 +289,17 @@ if __name__=="__main__":
             
             if (event.type == pygame.KEYDOWN and event.key == pygame.K_m):
                 machine_play = True
+            
+            if (event.type == pygame.KEYDOWN and event.key == pygame.K_p):
+                pid_control = True
 
         if machine_play == True:
             machine_control.gen_input(physics_engine.ball_pos_x,physics_engine.plate_angle,physics_engine.ball_vel_x)
-            plate_controller.set_target(machine_control.control_input)    
+            plate_controller.set_target(machine_control.control_input)
+
+        if pid_control == True:
+            pid_ball_controller.gen_input(physics_engine.ball_pos_x,physics_engine.ball_vel_x)
+            plate_controller.set_target(pid_ball_controller.control_input)    
             
         ## Query the controller for the angular velocity
         plate_angular_vel = plate_controller.control_loop()

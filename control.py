@@ -10,7 +10,7 @@ class simple_controller:
         self.target = 0.0
         self.error = 0.0
         self.position = 0.0
-        self.control_scheme = { 'right' : 0.1309 , 'left' : -0.1309 , 'center' : 0.0}
+        self.control_scheme = { 'right' : -0.1309 , 'left' : 0.1309 , 'center' : 0.0}
         self.plate_angular_vel_max = 10*0.174533 # Unit is rad/s 1 degree = 0.0174533 rad
         self.plate_angular_vel = 0
     
@@ -50,7 +50,8 @@ class pid_controller:
         self.plate_angular_vel_max = 20*0.174533 # Unit is rad/s 1 degree = 0.0174533 rad
         self.plate_angular_vel = 0
         self.error_prev = 0
-        self.P = 10
+        # If PID isn't set correctly, try P = 10 , D = 0.1 , I = 0.1
+        self.P = 10.0
         self.D = 0.1
         self.I = 0.1
         self.error_integ = 0
@@ -144,6 +145,45 @@ class ml_controller:
             #self.control_time = input_value[0] * 0.1309
             self.control_time = time.time()
             self.control_time_interval = time_interval
+
+class pid_ball_controller:
+    
+    def __init__(self):
+        # Model Variables
+        self.plate_angle = 0
+        self.position = 0.0
+        self.velocity = 0
+        self.P = 100.0
+        self.D = 0.1
+        self.I = 0.1 
+        self.dt = 1/30
+        self.prev_position = self.position
+        self.error_integ = 0.0
+
+        # Input to Controller
+        self.control_input = 0
+
+        # Controller time constraints
+        self.control_time = 0
+        self.control_time_interval = 0.1
+
+    def gen_input(self,position,velocity):
+        self.position = position
+        #print(self.position)
+        self.velocity = velocity
+        
+        input_value = self.P * self.position + self.D * (self.position - self.prev_position) / self.dt +self.I * self.error_integ
+
+        #print(input_value[0])
+        input_value = np.minimum(0.1309,input_value)
+        input_value = np.maximum(-0.1309,input_value) 
+        self.error_integ = self.error_integ + self.position
+
+        # Setting the input value into the range
+        current_time = time.time()
+        if ((current_time - self.control_time) > self.control_time_interval): 
+            self.control_input = input_value 
+            self.control_time = time.time()
 
 
 
