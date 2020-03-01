@@ -3,7 +3,7 @@
 # and rolling motion of a ball down a plate
 import numpy as np
 import time
-class ball_plate_system:
+class Ball_Plate_System:
     def __init__(self,ball_radius = 0.025, plate_radius = 0.3 , mu = 0.2, ball_init_x = 0, ball_init_y = 0):
         ## Defining System Dimensions
         self.ball_radius = ball_radius

@@ -5,7 +5,7 @@
 import pygame
 import sys
 import time
-from physics import ball_plate_system
+from physics import Ball_Plate_System
 from control import *
 import numpy as np
 from sharinGan import DataLogger
@@ -203,7 +203,7 @@ class Score:
 
     def decrease_score(self):
         self.score = self.score - 1
-        self.score = np.max(0,self.score)
+        self.score = max(0,self.score)
         self.update_score()
         return
     def increase_score(self):
@@ -224,12 +224,13 @@ if __name__=="__main__":
     ball = Ball()
 
     # Initialising Physics Engine
-    physics_engine = ball_plate_system(ball_radius = 0.025,plate_radius = 0.36 , mu = 0.02, ball_init_x = 0, ball_init_y = 0)
+    physics_engine = Ball_Plate_System(ball_radius = 0.025,plate_radius = 0.36 , mu = 0.02, ball_init_x = 0, ball_init_y = 0)
 
     # Initialsing Plate Controller
     plate_controller = pid_controller()
     machine_control = ml_controller()
     pid_ball_controller = pid_ball_controller()
+    binary_ball_controller = binary_ball_controller()
     #plate_controller = simple_controller()
 
     # Initialising ScoreBoard
@@ -244,7 +245,7 @@ if __name__=="__main__":
     simulation_record = False
     machine_play = False
     pid_control = False
-
+    binary_control = False
     
     
     while simulation_terminate is not True:
@@ -289,9 +290,18 @@ if __name__=="__main__":
             
             if (event.type == pygame.KEYDOWN and event.key == pygame.K_m):
                 machine_play = True
+                pid_control = False
+                binary_control = False
             
             if (event.type == pygame.KEYDOWN and event.key == pygame.K_p):
                 pid_control = True
+                binary_control = False
+                machine_play = False
+
+            if (event.type == pygame.KEYDOWN and event.key == pygame.K_b):
+                pid_control = False
+                binary_control = True
+                machine_play = False
 
         if machine_play == True:
             machine_control.gen_input(physics_engine.ball_pos_x,physics_engine.plate_angle,physics_engine.ball_vel_x)
@@ -300,6 +310,9 @@ if __name__=="__main__":
         if pid_control == True:
             pid_ball_controller.gen_input(physics_engine.ball_pos_x,physics_engine.ball_vel_x)
             plate_controller.set_target(pid_ball_controller.control_input)    
+        if binary_control == True:
+            binary_ball_controller.gen_input(physics_engine.ball_pos_x,physics_engine.ball_vel_x)
+            plate_controller.set_target(binary_ball_controller.control_input)    
             
         ## Query the controller for the angular velocity
         plate_angular_vel = plate_controller.control_loop()

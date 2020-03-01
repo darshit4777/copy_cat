@@ -153,9 +153,9 @@ class pid_ball_controller:
         self.plate_angle = 0
         self.position = 0.0
         self.velocity = 0
-        self.P = 100.0
-        self.D = 0.1
-        self.I = 0.1 
+        self.P = 5.0
+        self.D = 2.0
+        self.I = 0.0
         self.dt = 1/30
         self.prev_position = self.position
         self.error_integ = 0.0
@@ -178,6 +178,51 @@ class pid_ball_controller:
         input_value = np.minimum(0.1309,input_value)
         input_value = np.maximum(-0.1309,input_value) 
         self.error_integ = self.error_integ + self.position
+        self.prev_position = self.position
+
+        # Setting the input value into the range
+        current_time = time.time()
+        if ((current_time - self.control_time) > self.control_time_interval): 
+            self.control_input = input_value 
+            self.control_time = time.time()
+
+class binary_ball_controller:
+    
+    def __init__(self):
+        # Model Variables
+        self.plate_angle = 0
+        self.position = 0.0
+        self.velocity = 0
+        self.P = 100.0
+        self.D = 0.1
+        self.I = 0.1 
+        self.dt = 1/30
+        self.prev_position = self.position
+        self.error_integ = 0.0
+
+        # Input to Controller
+        self.control_input = 0
+
+        # Controller time constraints
+        self.control_time = 0
+        self.control_time_interval = 0.1
+
+    def gen_input(self,position,velocity):
+        self.position = position
+        #print(self.position)
+        self.velocity = velocity
+        
+        if self.position > 0:
+            input_value = 0.1309
+        elif self.position < 0:
+            input_value = -0.1309
+        else:
+            input_value = 0
+
+        #print(input_value[0])
+        input_value = np.minimum(0.1309,input_value)
+        input_value = np.maximum(-0.1309,input_value) 
+        #self.error_integ = self.error_integ + self.position
 
         # Setting the input value into the range
         current_time = time.time()
