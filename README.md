@@ -6,12 +6,13 @@ copy_cat is a pygame based ball-on-plate simulator. The user can use arrow keys 
 The copy cat simulator was built for testing various control algorithms to solve a well known and interesting controls problem. Additionally its application can be extended to build Machine Learning models to control the plate.
 
 ## Installation
-
-Just clone the repository and download dependencies from the requirements.txt. To do so, just use `pip install -r requirements.txt`
+It is recommended that you create a virtual environment first. To do so, use `python3 -m venv <name of virtualenv>`
+This will create a virtual environment. After that activate the virtual environment and clone this repository. 
+To download the dependencies from the requirements.txt, just use `pip install -r requirements.txt`
 
 ## Usage
 ### Launching
-Start the game using `python3 visual.py` </br>
+Start the game using `python3 main.py` </br>
 
 ### Controls
 Use the arrow keys to tilt the plate. As the plate tilts the ball will start rolling down the incline. Be careful! The ball speeds up quite fast!. </br> 
@@ -25,5 +26,8 @@ Press the `s` key to enter into the data collection mode aka 'SharinGan' mode. T
 
 ### Machine Learning
 Press the `m` key to analyse all your moves and let machine learning do the controlling. When a new game session is started, the program checks for any collected data. If any data is found it trains a Multi-Linear Regression model on the given data. On pressing the `m` key, the machine learning trained controller starts playing with the ball. The model will behave on the basis of the inputs given to it. In that it will try to emulate the user's playing style.</br>
+
+### Automatic Conrol
+The program now has built-in control modules for PID control and Binary (Bang-Bang Control). To activate PID control just press 'p' and to activate Binary control just press 'b'. To switch back to user control just press 'u'
 
 ## Enjoy !

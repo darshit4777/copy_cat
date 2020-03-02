@@ -247,7 +247,6 @@ if __name__=="__main__":
     pid_control = False
     binary_control = False
     
-    
     while simulation_terminate is not True:
         #print(physics_engine.ball_pos_x)
         
@@ -301,6 +300,11 @@ if __name__=="__main__":
             if (event.type == pygame.KEYDOWN and event.key == pygame.K_b):
                 pid_control = False
                 binary_control = True
+                machine_play = False
+            
+            if (event.type == pygame.KEYDOWN and event.key == pygame.K_u):
+                pid_control = False
+                binary_control = False
                 machine_play = False
 
         if machine_play == True:
