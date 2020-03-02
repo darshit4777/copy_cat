@@ -239,13 +239,18 @@ if __name__=="__main__":
     # Initialising the Terminal Condition Handler
     terminator = Terminator(physics_engine,plate_controller,plate,ball,scoreboard)
 
-    
-    # Declaring a Global Variable - I know. I must die in shame.
+    # Global variables for behavior switching.
 
     simulation_record = False
     machine_play = False
     pid_control = False
     binary_control = False
+
+    key_font = pygame.font.SysFont("Arial", 15)
+    key_string = str("Key : " + "   's' - Record Data" + "    'm' - Machine Learning" +  "    'p' - PID Control" + "  'b' - Binary Control" + "   'u' - User Control")
+    key_text = key_font.render(key_string,1,(255,255,255) )
+    screen.blit(key_text,(550,100))
+    
     
     while simulation_terminate is not True:
         #print(physics_engine.ball_pos_x)
@@ -329,11 +334,15 @@ if __name__=="__main__":
         ## Render the graphics
         draw_background(screen,background_color)
         scoreboard.update_score()
+        screen.blit(key_text,(500,100))
         plate.draw_plate(screen=screen,angle=physics_engine.plate_angle)
         ball.draw_ball(x = physics_engine.ball_pos_x, y = physics_engine.ball_pos_y)
         ## Update the Controller
         plate_controller.get_observation(physics_engine.plate_angle)
 
+        ## Print the Key
+         
+            
         ## Set Frame Rate        
         clock.tick(30)
 
